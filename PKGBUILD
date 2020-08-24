@@ -1,7 +1,8 @@
-# Maintainer: Ranieri Althoff <ranisalt+aur at gmail dot com>
+# Maintainer Tyler Kaminski <durcor at disroot dot org>
 
-pkgname=rocm-opencl-runtime
-pkgver=3.5.0
+pkgname=rocm-opencl-runtime-git
+_pkgname="${pkgname%-git}"
+pkgver=3.6Beta.r11.gc3b7a21
 pkgrel=1
 pkgdesc='Radeon Open Compute - OpenCL runtime'
 arch=('x86_64')
@@ -9,10 +10,15 @@ url='https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime'
 license=('MIT')
 depends=('hsakmt-roct' 'hsa-rocr' 'rocclr' 'opencl-icd-loader')
 makedepends=('cmake' 'rocm-cmake')
+conflicts=("$_pkgname")
 provides=("$pkgname" 'opencl-driver')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/roc-$pkgver.tar.gz")
-sha256sums=('511b617d5192f2d4893603c1a02402b2ac9556e9806ff09dd2a91d398abf39a0')
-_dirname="$(basename "$url")-$(basename "${source[0]}" .tar.gz)"
+source=("$pkgname::git+$url#branch=develop")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "$pkgname"
+    git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 build() {
     CFLAGS="$CFLAGS -isystem /opt/rocm/rocclr/include/include -isystem /opt/rocm/rocclr/include/compiler/lib -isystem /opt/rocm/rocclr/include/compiler/lib/include" \
