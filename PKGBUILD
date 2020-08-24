@@ -21,20 +21,20 @@ pkgver() {
 }
 
 build() {
-    CFLAGS="$CFLAGS -isystem /opt/rocm/rocclr/include/include -isystem /opt/rocm/rocclr/include/compiler/lib -isystem /opt/rocm/rocclr/include/compiler/lib/include" \
-    CXXFLAGS="$CXXFLAGS -isystem /opt/rocm/rocclr/include/include -isystem /opt/rocm/rocclr/include/compiler/lib -isystem /opt/rocm/rocclr/include/compiler/lib/include" \
-    cmake -DCMAKE_INSTALL_PREFIX=/opt/rocm \
+    cmake -Wno-dev -B build \
+		  -DCMAKE_INSTALL_PREFIX=/opt/rocm \
           -DROCclr_DIR=/opt/rocm/rocclr \
           -DLIBROCclr_STATIC_DIR=/opt/rocm/rocclr/lib \
           -DUSE_COMGR_LIBRARY=yes \
           -DBUILD_TESTING=OFF \
-          "$_dirname"
-    make
+		  -S "$srcdir/$pkgname"
+
+	  make -C build
 }
 
 package() {
-    DESTDIR="$pkgdir" make install
-    install -Dm644 "$_dirname/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    DESTDIR="$pkgdir" make -C build install
+    install -Dm644 "$pkgname/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
     install -Dm644 /dev/stdin "$pkgdir/etc/ld.so.conf.d/$pkgname.conf" <<-EOF
       /opt/rocm/lib
 EOF
